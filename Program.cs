@@ -139,7 +139,8 @@ namespace Практическая_работа__14
                         string stopReason = stopReasons[rnd.Next(stopReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"Внимание! Рейс отменён по причине: {stopReason}" +
-                            "Ожидайте следующий автобус по маршруту.");
+                            "\nОжидайте следующий автобус по маршруту.");
+                        Console.ForegroundColor = ConsoleColor.White;
                         break;
                 }
             }
