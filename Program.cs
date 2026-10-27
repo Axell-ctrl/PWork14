@@ -1,4 +1,4 @@
-﻿//***********************************************************************************************************************************************************************************************************
+//***********************************************************************************************************************************************************************************************************
 //*Практическая работа №14                                                                                                                                                                                  *
 //*Сделал Егоров Н.Н, группа 2-ИСП                                                                                                                                                                          *
 //*Задание: Написать структуру, которая описывает Автовокзал и выполняющую: ввод данных, состоящих из n структур; упорядоченный вывод по номерам маршрутов; вывод информации о наибольшем по длине маршруту *
@@ -53,6 +53,7 @@ namespace Практическая_работа__14
                     $"\nПункт назначения: {destinationPoint}" +
                     $"\nНомер маршрута: {numberOfTrip}" +
                     $"\nДлина маршрута: {routeLength}");
+                //InfoAboutLengthOfTrip();
             }
             void InfoAboutObjStruct()
             {
@@ -60,7 +61,7 @@ namespace Практическая_работа__14
                 uint countCars = UInt32.Parse(Console.ReadLine());
 
                 Car[] cars = new Car[countCars];
-                for (int i = 0; i < countCars; i++) 
+                for (int i = 0; i < countCars; i++)
                 {
                     Console.Write("Введите пункт прибытия: ");
                     string departurePoint = Console.ReadLine();
@@ -73,11 +74,19 @@ namespace Практическая_работа__14
                     cars[i] = new Car(departurePoint, destinationPoint, numberOfTrip, routeLength);
                 }
             }
+            void SortedObjStruct()
+            {
+
+            }
+            void InfoAboutLengthOfTrip()
+            {
+
+            }
             public void EventsForCars()
             {
                 PrintInfoObjStruct();
                 Random rnd = new Random();
-                int change = rnd.Next(6);
+                int change = rnd.Next(5);
                 int minutesChange = rnd.Next(1, 60);
                 switch (change)
                 {
@@ -87,7 +96,7 @@ namespace Практическая_работа__14
                             "Неблагоприятные погодные условия", "Технические неполадки", "Работы на дорогах", "Пробки на дорогах"
                         };
                         string reason = delayReasons[rnd.Next(delayReasons.Length)];
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.WriteLine($"Внимание! Автобус задержится по причине: {reason}." +
                             $"\nПрибудет позже на: {minutesChange} минут.");
                         Console.ForegroundColor = ConsoleColor.White;
@@ -115,22 +124,23 @@ namespace Практическая_работа__14
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
                     case 3:
-                        int[] otherNumbersOfTrip = { 128, 130, 131, 104, 309, };
+                        int[] otherNumbersOfTrip = { 128, 130, 131, 104, 309 };
                         int otherNumberOfTrip = otherNumbersOfTrip[rnd.Next(otherNumbersOfTrip.Length)];
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        Console.WriteLine("Внимание! Автобус сломался по маршруту: " +
+                        Console.WriteLine("Внимание! Автобус сломался." +
                             $"\nВместо него приедет автобус под номером: {otherNumberOfTrip}");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
-                    //case 4:
-                    //    string[] stopReasons =
-                    //    {
-                    //        ""
-                    //    };
-                    //    break;
-                    //case 5:
-                    //    Console.WriteLine("Не доделано.");
-                    //    break;
+                    case 4:
+                        string[] stopReasons =
+                        {
+                            "Автобус сломался. Замены нет.", "Аварийная ситуация"
+                        };
+                        string stopReason = stopReasons[rnd.Next(stopReasons.Length)];
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Внимание! Рейс отменён по причине: {stopReason}" +
+                            "Ожидайте следующий автобус по маршруту.");
+                        break;
                 }
             }
         }
@@ -140,7 +150,7 @@ namespace Практическая_работа__14
             Console.ForegroundColor = ConsoleColor.White;
             Console.Clear();
             Console.Title = "Практическая работа №14";
-            Console.WriteLine("Здравствуйте!");
+            Console.WriteLine("Вас приветствует справочная система 'Автоколонны 1378'.");
             bool exitProgram = false;
 
             while (true)
