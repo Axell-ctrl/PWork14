@@ -1,8 +1,3 @@
-//***********************************************************************************************************************************************************************************************************
-//*Практическая работа №14                                                                                                                                                                                  *
-//*Сделал Егоров Н.Н, группа 2-ИСП                                                                                                                                                                          *
-//*Задание: Написать структуру, которая описывает Автовокзал и выполняющую: ввод данных, состоящих из n структур; упорядоченный вывод по номерам маршрутов; вывод информации о наибольшем по длине маршруту *
-//***********************************************************************************************************************************************************************************************************
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,38 +27,63 @@ namespace Практическая_работа__14
             Console.WriteLine($"Что-то пошло не так! Ошибка: {ex.Message} Попробуйте ещё раз.");//Вывод текста с помощью интерполяции: Что-то пошло не так! Ошибка: Входная строка имела неправильный формат. 
             Console.ForegroundColor = ConsoleColor.White;
         }
-        struct Car
+
+        struct BusStation
         {
             string departurePoint;
             string destinationPoint;
             uint numberOfTrip;
             uint routeLength;
-            public Car(string departurePoint, string destinationPoint, uint numberOfTrip, uint routeLength)
+
+            public BusStation(string departurePoint, string destinationPoint, uint numberOfTrip, uint routeLength)
             {
                 this.departurePoint = departurePoint;
                 this.destinationPoint = destinationPoint;
                 this.numberOfTrip = numberOfTrip;
                 this.routeLength = routeLength;
             }
+
             void PrintInfoObjStruct()
             {
-                InfoAboutObjStruct();
-                Console.WriteLine("---Информация о маршрутах Автовокзала---" +
-                    $"\nПункт прибытия: {departurePoint}" +
+                Console.WriteLine($"\nПункт отправления: {departurePoint}" +
                     $"\nПункт назначения: {destinationPoint}" +
                     $"\nНомер маршрута: {numberOfTrip}" +
-                    $"\nДлина маршрута: {routeLength}");
-                //InfoAboutLengthOfTrip();
+                    $"\nДлина маршрута: {routeLength} км");
             }
-            void InfoAboutObjStruct()
+
+            public static void ProcessAutovokzal()
+            {
+                BusStation[] buses = InfoAboutObjStruct();
+
+                SortedObjStruct(buses);
+
+                Console.WriteLine("\n--- Информация о маршрутах Автовокзала (отсортировано по номерам) ---");
+                for (int i = 0; i < buses.Length; i++)
+                {
+                    buses[i].PrintInfoObjStruct();
+                }
+
+                InfoAboutLengthOfTrip(buses);
+
+                Random rnd = new Random();
+
+                int randomIndex = rnd.Next(0, buses.Length);
+
+                BusStation randomBus = buses[randomIndex];
+                randomBus.EventsForCars();
+            }
+
+
+            static BusStation[] InfoAboutObjStruct()
             {
                 Console.Write("Введите количество маршрутов для заполнения: ");
-                uint countCars = UInt32.Parse(Console.ReadLine());
+                uint countBuses = UInt32.Parse(Console.ReadLine());
 
-                Car[] cars = new Car[countCars];
-                for (int i = 0; i < countCars; i++)
+                BusStation[] buses = new BusStation[countBuses];
+                for (int i = 0; i < countBuses; i++)
                 {
-                    Console.Write("Введите пункт прибытия: ");
+                    Console.WriteLine($"\nЗаполнение маршрута №{i + 1}:");
+                    Console.Write("Введите пункт отправления: ");
                     string departurePoint = Console.ReadLine();
                     Console.Write("Введите пункт назначения: ");
                     string destinationPoint = Console.ReadLine();
@@ -71,23 +91,56 @@ namespace Практическая_работа__14
                     uint numberOfTrip = UInt32.Parse(Console.ReadLine());
                     Console.Write("Введите длину маршрута в км: ");
                     uint routeLength = UInt32.Parse(Console.ReadLine());
-                    cars[i] = new Car(departurePoint, destinationPoint, numberOfTrip, routeLength);
+                    buses[i] = new BusStation(departurePoint, destinationPoint, numberOfTrip, routeLength);
+                }
+                return buses;
+            }
+
+            static void SortedObjStruct(BusStation[] buses)
+            {
+                for (int i = 0; i < buses.Length - 1; i++)
+                {
+                    for (int j = 0; j < buses.Length - i - 1; j++)
+                    {
+                        if (buses[j].numberOfTrip > buses[j + 1].numberOfTrip)
+                        {
+                            BusStation temp = buses[j];
+                            buses[j] = buses[j + 1];
+                            buses[j + 1] = temp;
+                        }
+                    }
                 }
             }
-            void SortedObjStruct()
-            {
 
-            }
-            void InfoAboutLengthOfTrip()
+            static void InfoAboutLengthOfTrip(BusStation[] buses)
             {
+                uint maxLength = buses[0].routeLength;
+                for (int i = 1; i < buses.Length; i++)
+                {
+                    if (buses[i].routeLength > maxLength)
+                    {
+                        maxLength = buses[i].routeLength;
+                    }
+                }
 
+                Console.WriteLine($"\n--- Наибольший по длине маршрут ({maxLength} км) ---");
+                for (int i = 0; i < buses.Length; i++)
+                {
+                    if (buses[i].routeLength == maxLength)
+                    {
+                        buses[i].PrintInfoObjStruct();
+                    }
+                }
             }
-            public void EventsForCars()
+
+            void EventsForCars()
             {
-                PrintInfoObjStruct();
                 Random rnd = new Random();
                 int change = rnd.Next(5);
                 int minutesChange = rnd.Next(1, 60);
+
+                string busInfo = $"[Маршрут №{numberOfTrip} ({departurePoint} -> {destinationPoint})]";
+
                 switch (change)
                 {
                     case 0:
@@ -97,7 +150,7 @@ namespace Практическая_работа__14
                         };
                         string reason = delayReasons[rnd.Next(delayReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.DarkRed;
-                        Console.WriteLine($"Внимание! Автобус задержится по причине: {reason}." +
+                        Console.WriteLine($"\nВнимание! Автобус {busInfo} задержится по причине: {reason}." +
                             $"\nПрибудет позже на: {minutesChange} минут.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
@@ -108,7 +161,7 @@ namespace Практическая_работа__14
                         };
                         string speedReason = speedReasons[rnd.Next(speedReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Внимание! Автобус ускорился по причине: {speedReason}." +
+                        Console.WriteLine($"\nВнимание! Автобус {busInfo} ускорился по причине: {speedReason}." +
                             $"\nПрибудет раньше на: {minutesChange} минут.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
@@ -119,7 +172,7 @@ namespace Практическая_работа__14
                         };
                         string otherReason = otherReasons[rnd.Next(otherReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine($"Внимание! Автобус остановился по причине: {otherReason}." +
+                        Console.WriteLine($"\nВнимание! Автобус {busInfo} остановился по причине: {otherReason}." +
                             $"\nАвтобус приедет по расписанию.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
@@ -127,24 +180,25 @@ namespace Практическая_работа__14
                         int[] otherNumbersOfTrip = { 128, 130, 131, 104, 309 };
                         int otherNumberOfTrip = otherNumbersOfTrip[rnd.Next(otherNumbersOfTrip.Length)];
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
-                        Console.WriteLine("Внимание! Автобус сломался." +
+                        Console.WriteLine($"\nВнимание! Автобус {busInfo} сломался." +
                             $"\nВместо него приедет автобус под номером: {otherNumberOfTrip}");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
                     case 4:
                         string[] stopReasons =
                         {
-                            "Автобус сломался. Замены нет.", "Аварийная ситуация"
+                            "Автобус сломался. Замены нет.", "Аварийная ситуация", "У водителя закончилась смена. Подмены нет."
                         };
                         string stopReason = stopReasons[rnd.Next(stopReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Внимание! Рейс отменён по причине: {stopReason}" +
+                        Console.WriteLine($"\nВнимание! Рейс {busInfo} отменён по причине: {stopReason}" +
                             "\nОжидайте следующий автобус по маршруту.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
                 }
             }
         }
+
         static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.DarkBlue;
@@ -158,61 +212,59 @@ namespace Практическая_работа__14
             {
                 try
                 {
-                    Car car = new Car();
-                    car.EventsForCars();
+                    BusStation.ProcessAutovokzal();
                 }
-                catch (FormatException fex)//обработка исключения FormatException
+                catch (FormatException fex)
                 {
-                    HandleError(fex);//функция которая вызывает сообщение ошибки FormatException
+                    HandleError(fex);
                 }
-                catch (OverflowException ofex)//обработка исключения OverflowException
+                catch (OverflowException ofex)
                 {
-                    HandleError(ofex);//функция которая вызывает сообщение ошибки OverflowException
+                    HandleError(ofex);
                 }
                 catch (Exception ex)
                 {
-                    HandleError(ex);//функция которая вызывает сообщение ошибки Exception
+                    HandleError(ex);
                 }
-                while (true)//повторное выполнение цикла с вопросом: Хотите продолжить выполнение? (1-Да/0-Нет).
+                while (true)
                 {
                     try
                     {
-                        Console.Write("Хотите продолжить выполнение? (1-Да/0-Нет): ");
+                        Console.Write("\nХотите продолжить выполнение? (1-Да/0-Нет): ");
                         int answer = Int32.Parse(Console.ReadLine());
-                        if (answer < 0 || answer > 1)//если ответ пользователя меньше 0 или больше 1
+                        if (answer < 0 || answer > 1)
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Вы ввели некорректное число. Попробуйте ещё раз.");//некорректное число, просит пользователя попробовать ещё раз ввести значение
+                            Console.WriteLine("Вы ввели некорректное число. Попробуйте ещё раз.");
                             Console.ForegroundColor = ConsoleColor.White;
-                            continue;//продолжает итерацию внутреннего цикла
+                            continue;
                         }
-                        else//иначе
+                        else
                         {
-                            if (answer == 0)//если ответ пользователя равен 0
+                            if (answer == 0)
                             {
-                                exitProgram = true;//флаг выхода из программы становится истинным
-                                Console.WriteLine("Завершение программы. Нажмите для продолжения...");//выводится сообщение: Завершение программы.
+                                exitProgram = true;
+                                Console.WriteLine("Завершение программы. Нажмите для продолжения...");
                             }
                             break;
                         }
                     }
-                    catch (FormatException fex)//обработка исключения FormatException
+                    catch (FormatException fex)
                     {
-                        HandleError(fex);//функция которая вызывает сообщение ошибки FormatException
+                        HandleError(fex);
                     }
-                    catch (OverflowException ofex)//обработка исключения OverflowException
+                    catch (OverflowException ofex)
                     {
-                        HandleError(ofex);//функция которая вызывает сообщение ошибки OverflowException
+                        HandleError(ofex);
                     }
                     catch (Exception ex)
                     {
-                        HandleError(ex);//функция которая вызывает сообщение ошибки Exception
+                        HandleError(ex);
                     }
                 }
-                if (exitProgram == true)//если выход из программы является истинным
-                    break;//завершается внешний цикл
+                if (exitProgram == true)
+                    break;
             }
-
             Console.ReadKey();
         }
     }
