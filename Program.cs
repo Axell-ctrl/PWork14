@@ -1,41 +1,41 @@
+//*****************************************************
+//*Практическая работа №14                            *
+//*Сделал Егоров Н.Н, группа 2-ИСП                    *
+//*Задание: Описать структуру с именем "Автовокзал".  *
+//*****************************************************
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Практическая_работа__14
 {
     internal class Program
     {
-        static void HandleError(FormatException fex)//функция с сообщением об исключении FormatException (входная строка имела неправильный формат)
+        static void HandleError(FormatException fex)//обработка ошибки неверного формата ввода
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Что-то пошло не так! Ошибка: {fex.Message} Попробуйте ещё раз.");//Вывод текста с помощью интерполяции: Что-то пошло не так! Ошибка: Входная строка имела неправильный формат. 
+            Console.WriteLine($"Что-то пошло не так! Ошибка: {fex.Message} Попробуйте ещё раз.");
             Console.ForegroundColor = ConsoleColor.White;
         }
-        static void HandleError(OverflowException ofex)//функция с сообщением об исключении OverflowException (Значение было недопустимо малым или недопустимо большим для Int32)
+        static void HandleError(OverflowException ofex)//обработка ошибки переполнения допустимого диапазона
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Что-то пошло не так! Ошибка: {ofex.Message} Попробуйте ещё раз.");//Вывод текста с помощью интерполяции: Что-то пошло не так! Ошибка: Значение было недопустимо малым или недопустимо большим для Int32.
+            Console.WriteLine($"Что-то пошло не так! Ошибка: {ofex.Message} Попробуйте ещё раз.");
             Console.ForegroundColor = ConsoleColor.White;
         }
-        static void HandleError(Exception ex)//функция с сообщением об исключении Exception (все ошибки в целом)
+        static void HandleError(Exception ex)//обработка прочих непредвиденных ошибок
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Что-то пошло не так! Ошибка: {ex.Message} Попробуйте ещё раз.");//Вывод текста с помощью интерполяции: Что-то пошло не так! Ошибка: Входная строка имела неправильный формат. 
+            Console.WriteLine($"Что-то пошло не так! Ошибка: {ex.Message} Попробуйте ещё раз.");
             Console.ForegroundColor = ConsoleColor.White;
         }
 
-        struct BusStation
+        struct BusStation//структура для хранения данных о маршруте автовокзала
         {
             string departurePoint;
             string destinationPoint;
             uint numberOfTrip;
             uint routeLength;
 
-            public BusStation(string departurePoint, string destinationPoint, uint numberOfTrip, uint routeLength)
+            public BusStation(string departurePoint, string destinationPoint, uint numberOfTrip, uint routeLength)//конструктор для инициализации полей маршрута
             {
                 this.departurePoint = departurePoint;
                 this.destinationPoint = destinationPoint;
@@ -43,7 +43,7 @@ namespace Практическая_работа__14
                 this.routeLength = routeLength;
             }
 
-            void PrintInfoObjStruct()
+            void PrintInfoObjStruct()//вывод информации об одном маршруте
             {
                 Console.WriteLine($"\nПункт отправления: {departurePoint}" +
                     $"\nПункт назначения: {destinationPoint}" +
@@ -66,37 +66,134 @@ namespace Практическая_работа__14
                 InfoAboutLengthOfTrip(buses);
 
                 Random rnd = new Random();
-
-                int randomIndex = rnd.Next(0, buses.Length);
-
-                BusStation randomBus = buses[randomIndex];
-                randomBus.EventsForCars();
+                int randomIndex = rnd.Next(0, buses.Length);//выбор случайного маршрута для генерации события
+                buses[randomIndex].EventsForCars(rnd);
             }
 
-
-            static BusStation[] InfoAboutObjStruct()
+            static BusStation[] InfoAboutObjStruct()//ввод данных с клавиатуры с проверками и заполнение массива структур
             {
-                Console.Write("Введите количество маршрутов для заполнения: ");
-                uint countBuses = UInt32.Parse(Console.ReadLine());
+                uint countBuses;
+                while (true)//проверка, что количество маршрутов больше нуля
+                {
+                    try
+                    {
+                        Console.Write("Введите количество маршрутов для заполнения: ");
+                        countBuses = UInt32.Parse(Console.ReadLine());
+                        if (countBuses > 0)
+                            break;
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Количество маршрутов должно быть больше нуля. Попробуйте ещё раз.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    catch (FormatException fex)
+                    {
+                        HandleError(fex);
+                    }
+                    catch (OverflowException ofex)
+                    {
+                        HandleError(ofex);
+                    }
+                    catch (Exception ex)
+                    {
+                        HandleError(ex);
+                    }
+                }
 
                 BusStation[] buses = new BusStation[countBuses];
                 for (int i = 0; i < countBuses; i++)
                 {
                     Console.WriteLine($"\nЗаполнение маршрута №{i + 1}:");
-                    Console.Write("Введите пункт отправления: ");
-                    string departurePoint = Console.ReadLine();
-                    Console.Write("Введите пункт назначения: ");
-                    string destinationPoint = Console.ReadLine();
-                    Console.Write("Введите номер маршрута: ");
-                    uint numberOfTrip = UInt32.Parse(Console.ReadLine());
-                    Console.Write("Введите длину маршрута в км: ");
-                    uint routeLength = UInt32.Parse(Console.ReadLine());
+
+                    string departurePoint;
+                    while (true)//проверка пункта отправления на пустую строку
+                    {
+                        Console.Write("Введите пункт отправления: ");
+                        departurePoint = Console.ReadLine();
+                        if (!string.IsNullOrWhiteSpace(departurePoint))
+                        {
+                            departurePoint = departurePoint.Trim();
+                            break;
+                        }
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Пункт отправления не может быть пустым. Попробуйте ещё раз.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+
+                    string destinationPoint;
+                    while (true)//проверка пункта назначения на пустую строку
+                    {
+                        Console.Write("Введите пункт назначения: ");
+                        destinationPoint = Console.ReadLine();
+                        if (!string.IsNullOrWhiteSpace(destinationPoint))
+                        {
+                            destinationPoint = destinationPoint.Trim();
+                            break;
+                        }
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Пункт назначения не может быть пустым. Попробуйте ещё раз.");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+
+                    uint numberOfTrip;
+                    while (true)//проверка номера маршрута (должен быть больше нуля)
+                    {
+                        try
+                        {
+                            Console.Write("Введите номер маршрута: ");
+                            numberOfTrip = UInt32.Parse(Console.ReadLine());
+                            if (numberOfTrip > 0)
+                                break;
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Номер маршрута должен быть больше нуля. Попробуйте ещё раз.");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        catch (FormatException fex)
+                        {
+                            HandleError(fex);
+                        }
+                        catch (OverflowException ofex)
+                        {
+                            HandleError(ofex);
+                        }
+                        catch (Exception ex)
+                        {
+                            HandleError(ex);
+                        }
+                    }
+
+                    uint routeLength;
+                    while (true)//проверка длины маршрута (должна быть больше нуля)
+                    {
+                        try
+                        {
+                            Console.Write("Введите длину маршрута в км: ");
+                            routeLength = UInt32.Parse(Console.ReadLine());
+                            if (routeLength > 0)
+                                break;
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Длина маршрута должна быть больше нуля. Попробуйте ещё раз.");
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                        catch (FormatException fex)
+                        {
+                            HandleError(fex);
+                        }
+                        catch (OverflowException ofex)
+                        {
+                            HandleError(ofex);
+                        }
+                        catch (Exception ex)
+                        {
+                            HandleError(ex);
+                        }
+                    }
+
                     buses[i] = new BusStation(departurePoint, destinationPoint, numberOfTrip, routeLength);
                 }
                 return buses;
             }
 
-            static void SortedObjStruct(BusStation[] buses)
+            static void SortedObjStruct(BusStation[] buses)//сортировка маршрутов по возрастанию номера методом пузырька
             {
                 for (int i = 0; i < buses.Length - 1; i++)
                 {
@@ -112,7 +209,7 @@ namespace Практическая_работа__14
                 }
             }
 
-            static void InfoAboutLengthOfTrip(BusStation[] buses)
+            static void InfoAboutLengthOfTrip(BusStation[] buses)//поиск и вывод маршрутов с максимальной длиной
             {
                 uint maxLength = buses[0].routeLength;
                 for (int i = 1; i < buses.Length; i++)
@@ -123,7 +220,7 @@ namespace Практическая_работа__14
                     }
                 }
 
-                Console.WriteLine($"\n--- Наибольший по длине маршрут ({maxLength} км) ---");
+                Console.WriteLine($"\n--- Наибольший по длине маршрут (маршруты) ---");
                 for (int i = 0; i < buses.Length; i++)
                 {
                     if (buses[i].routeLength == maxLength)
@@ -133,17 +230,13 @@ namespace Практическая_работа__14
                 }
             }
 
-            void EventsForCars()
+            void EventsForCars(Random rnd)//генерация случайного дорожного события для выбранного автобуса
             {
-                Random rnd = new Random();
                 int change = rnd.Next(5);
-                int minutesChange = rnd.Next(1, 60);
-
                 string busInfo = $"[Маршрут №{numberOfTrip} ({departurePoint} -> {destinationPoint})]";
-
                 switch (change)
                 {
-                    case 0:
+                    case 0://задержка рейса
                         string[] delayReasons =
                         {
                             "Неблагоприятные погодные условия", "Технические неполадки", "Работы на дорогах", "Пробки на дорогах"
@@ -151,10 +244,10 @@ namespace Практическая_работа__14
                         string reason = delayReasons[rnd.Next(delayReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.DarkRed;
                         Console.WriteLine($"\nВнимание! Автобус {busInfo} задержится по причине: {reason}." +
-                            $"\nПрибудет позже на: {minutesChange} минут.");
+                        $"\nПрибудет позже, несмотря на расписание.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
-                    case 1:
+                    case 1://опережение расписания
                         string[] speedReasons =
                         {
                             "Благоприятные погодные условия", "Нет пробок на дорогах", "Изменение маршрута на более короткий"
@@ -162,10 +255,10 @@ namespace Практическая_работа__14
                         string speedReason = speedReasons[rnd.Next(speedReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"\nВнимание! Автобус {busInfo} ускорился по причине: {speedReason}." +
-                            $"\nПрибудет раньше на: {minutesChange} минут.");
+                        $"\nПриедет раньше, несмотря на расписание.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
-                    case 2:
+                    case 2://временная остановка без изменения графика
                         string[] otherReasons =
                         {
                             "Изменение маршрута", "Проверка двигателя", "Смена автобуса"
@@ -173,18 +266,18 @@ namespace Практическая_работа__14
                         string otherReason = otherReasons[rnd.Next(otherReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.Yellow;
                         Console.WriteLine($"\nВнимание! Автобус {busInfo} остановился по причине: {otherReason}." +
-                            $"\nАвтобус приедет по расписанию.");
+                        "\nАвтобус приедет по расписанию.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
-                    case 3:
+                    case 3://поломка с заменой автобуса
                         int[] otherNumbersOfTrip = { 128, 130, 131, 104, 309 };
                         int otherNumberOfTrip = otherNumbersOfTrip[rnd.Next(otherNumbersOfTrip.Length)];
                         Console.ForegroundColor = ConsoleColor.DarkYellow;
                         Console.WriteLine($"\nВнимание! Автобус {busInfo} сломался." +
-                            $"\nВместо него приедет автобус под номером: {otherNumberOfTrip}");
+                        $"\nВместо него приедет автобус под номером: {otherNumberOfTrip}");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
-                    case 4:
+                    case 4://полная отмена рейса
                         string[] stopReasons =
                         {
                             "Автобус сломался. Замены нет.", "Аварийная ситуация", "У водителя закончилась смена. Подмены нет."
@@ -192,22 +285,20 @@ namespace Практическая_работа__14
                         string stopReason = stopReasons[rnd.Next(stopReasons.Length)];
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine($"\nВнимание! Рейс {busInfo} отменён по причине: {stopReason}" +
-                            "\nОжидайте следующий автобус по маршруту.");
+                        "\nОжидайте следующий автобус по маршруту.");
                         Console.ForegroundColor = ConsoleColor.White;
                         break;
                 }
             }
         }
-
         static void Main(string[] args)
         {
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             Console.ForegroundColor = ConsoleColor.White;
             Console.Clear();
             Console.Title = "Практическая работа №14";
-            Console.WriteLine("Вас приветствует справочная система 'Автоколонны 1378'.");
+            Console.WriteLine("Здравствуйте!");
             bool exitProgram = false;
-
             while (true)
             {
                 try
@@ -217,14 +308,17 @@ namespace Практическая_работа__14
                 catch (FormatException fex)
                 {
                     HandleError(fex);
+                    continue;
                 }
                 catch (OverflowException ofex)
                 {
                     HandleError(ofex);
+                    continue;
                 }
                 catch (Exception ex)
                 {
                     HandleError(ex);
+                    continue;
                 }
                 while (true)
                 {
