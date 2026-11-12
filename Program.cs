@@ -9,18 +9,6 @@ namespace Практическая_работа__14
 {
     internal class Program
     {
-        static void HandleError(FormatException fex)//обработка ошибки неверного формата ввода
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Что-то пошло не так! Ошибка: {fex.Message} Попробуйте ещё раз.");
-            Console.ForegroundColor = ConsoleColor.White;
-        }
-        static void HandleError(OverflowException ofex)//обработка ошибки переполнения допустимого диапазона
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"Что-то пошло не так! Ошибка: {ofex.Message} Попробуйте ещё раз.");
-            Console.ForegroundColor = ConsoleColor.White;
-        }
         static void HandleError(Exception ex)//обработка прочих непредвиденных ошибок
         {
             Console.ForegroundColor = ConsoleColor.Red;
